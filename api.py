@@ -12,7 +12,7 @@ app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-NEWS_API_KEY = os.getenv("NEWS_API_KEY")
+NEWS_API_KEY = "83df3cd2949c47a295ed4078bd8e8099"
 BASE_URL = "https://newsapi.org/v2/everything"
 
 
