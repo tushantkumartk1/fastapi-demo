@@ -2,17 +2,28 @@
 <html>
 <head>
     <title>{{ title or "News Hub" }}</title>
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<nav>
-    <a href="/">Home</a>
-    <a href="/about">About</a>
-    <a href="/contact">Contact</a>
-</nav>
+
+<header>
+    <div class="navbar">
+        <a href="/" class="brand">NewsHub</a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
+        </div>
+    </div>
+</header>
 
 <main>
     {% block content %}{% endblock %}
 </main>
+
+<footer>
+    © 2026 NewsHub • Inspired by Times of India layout
+</footer>
+
 </body>
 </html>
