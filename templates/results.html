@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>{{ title }}</h1>
+
+{% if articles %}
+    {% for article in articles %}
+        <div class="card">
+            <h3>{{ article.title }}</h3>
+            <p>{{ article.description }}</p>
+            <a href="{{ article.url }}" target="_blank">Read more</a>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No results found.</p>
+{% endif %}
+
+{% endblock %}

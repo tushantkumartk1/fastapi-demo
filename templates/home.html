@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>News Hub</h1>
+
+<h2>Normal Search</h2>
+<form action="/results/search" method="get">
+    <input name="q" placeholder="Search keyword" required>
+    <button type="submit">Search</button>
+</form>
+
+<h2>Date Range Search</h2>
+<form action="/results/range" method="get">
+    <input name="q" placeholder="Keyword" required>
+    <input type="date" name="from_date" required>
+    <input type="date" name="to_date" required>
+    <button type="submit">Search</button>
+</form>
+
+<h2>Location Search</h2>
+<form action="/results/location" method="get">
+    <input name="location" placeholder="Location" required>
+    <button type="submit">Search</button>
+</form>
+
+{% endblock %}

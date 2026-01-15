@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title or "News Hub" }}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<nav>
+    <a href="/">Home</a>
+    <a href="/about">About</a>
+    <a href="/contact">Contact</a>
+</nav>
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+</body>
+</html>
