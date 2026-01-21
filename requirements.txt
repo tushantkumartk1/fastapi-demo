@@ -3,3 +3,7 @@ uvicorn
 requests
 pydantic
 jinja2
+redis
+pytest
+httpx
+pytest-mock

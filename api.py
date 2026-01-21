@@ -1,88 +1,69 @@
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI, Query, HTTPException
+from datetime import date
 import requests
-import os
-from validation import serialize_news
+
+from validation import clean_news
 
 app = FastAPI()
 
-# Templates & static
-templates = Jinja2Templates(directory="templates")
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-NEWS_API_KEY = "83df3cd2949c47a295ed4078bd8e8099"
-BASE_URL = "https://newsapi.org/v2/everything"
+NEWS_API_KEY = "PASTE_YOUR_NEWSAPI_KEY_HERE"
+NEWS_URL = "https://newsapi.org/v2/everything"
 
 
-def fetch_news(params: dict) -> dict:
+def get_news(params: dict):
     try:
-        response = requests.get(BASE_URL, params=params, timeout=10)
-        data = response.json()
-    except requests.RequestException:
-        raise HTTPException(status_code=502, detail="Upstream News API request failed")
-
-    if data.get("status") != "ok":
-        raise HTTPException(status_code=502, detail=data.get("message", "News API error"))
-
-    return serialize_news(data)
+        response = requests.get(NEWS_URL, params=params, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=502, detail=str(e))
 
 
-# ---------- STATIC PAGES ----------
-
-@app.get("/", response_class=HTMLResponse)
-def home(request: Request):
-    return templates.TemplateResponse("home.html", {"request": request})
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 
-@app.get("/about", response_class=HTMLResponse)
-def about(request: Request):
-    return templates.TemplateResponse("about.html", {"request": request})
-
-
-@app.get("/contact", response_class=HTMLResponse)
-def contact(request: Request):
-    return templates.TemplateResponse("contact.html", {"request": request})
-
-
-# ---------- RESULT PAGES ----------
-
-@app.get("/results/search", response_class=HTMLResponse)
-def search_news(request: Request, q: str):
-    params = {"q": q, "apiKey": NEWS_API_KEY, "pageSize": 10}
-    news = fetch_news(params)
-    return templates.TemplateResponse(
-        "results.html",
-        {"request": request, "articles": news["articles"], "title": f"Search: {q}"}
-    )
-
-
-@app.get("/results/range", response_class=HTMLResponse)
-def news_by_date(request: Request, q: str, from_date: str, to_date: str):
+@app.get("/news/search")
+def search_news(q: str = Query(..., min_length=1)):
     params = {
         "q": q,
-        "from": from_date,
-        "to": to_date,
         "apiKey": NEWS_API_KEY,
+        "language": "en",
         "pageSize": 10,
     }
-    news = fetch_news(params)
-    return templates.TemplateResponse(
-        "results.html",
-        {
-            "request": request,
-            "articles": news["articles"],
-            "title": f"{q} ({from_date} → {to_date})",
-        },
-    )
+    raw = get_news(params)
+    return {"data": clean_news(raw)}
 
 
-@app.get("/results/location", response_class=HTMLResponse)
-def news_by_location(request: Request, location: str):
-    params = {"q": location, "apiKey": NEWS_API_KEY, "pageSize": 10}
-    news = fetch_news(params)
-    return templates.TemplateResponse(
-        "results.html",
-        {"request": request, "articles": news["articles"], "title": f"Location: {location}"}
-    )
+@app.get("/news/range")
+def search_by_date(
+    q: str = Query(..., min_length=1),
+    from_date: date = Query(...),
+    to_date: date = Query(...),
+):
+    if from_date > to_date:
+        raise HTTPException(status_code=400, detail="invalid date range")
+
+    params = {
+        "q": q,
+        "from": from_date.isoformat(),
+        "to": to_date.isoformat(),
+        "apiKey": NEWS_API_KEY,
+        "language": "en",
+        "pageSize": 10,
+    }
+    raw = get_news(params)
+    return {"data": clean_news(raw)}
+
+
+@app.get("/news/location")
+def search_by_location(location: str = Query(..., min_length=1)):
+    params = {
+        "q": location,
+        "apiKey": NEWS_API_KEY,
+        "language": "en",
+        "pageSize": 10,
+    }
+    raw = get_news(params)
+    return {"data": clean_news(raw)}

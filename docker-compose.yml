@@ -1,0 +1,14 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  api:
+    build: .
+    container_name: news-hub-api
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis

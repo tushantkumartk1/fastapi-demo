@@ -1,28 +1,23 @@
-from pydantic import BaseModel
-from typing import List, Optional
+def clean_news(data):
+    if not isinstance(data, dict):
+        return {"total": 0, "articles": []}
 
+    articles = data.get("articles") or []
+    cleaned = []
 
-class Article(BaseModel):
-    title: Optional[str] = None
-    description: Optional[str] = None
-    url: Optional[str] = None
-    publishedAt: Optional[str] = None
+    for item in articles:
+        source = item.get("source") or {}
+        cleaned.append(
+            {
+                "source": source.get("name"),
+                "title": item.get("title"),
+                "description": item.get("description"),
+                "url": item.get("url"),
+                "published": item.get("publishedAt"),
+            }
+        )
 
-
-class NewsResponse(BaseModel):
-    status: str
-    totalResults: int
-    articles: List[Article]
-
-
-def serialize_news(data: dict) -> dict:
-    """
-    Validates incoming data using Pydantic and returns clean JSON.
-    Extra fields from NewsAPI are ignored automatically.
-    """
-    validated = NewsResponse(
-        status=data.get("status", "error"),
-        totalResults=data.get("totalResults", 0),
-        articles=data.get("articles", []),
-    )
-    return validated.model_dump()
+    return {
+        "total": data.get("totalResults", len(cleaned)),
+        "articles": cleaned,
+    }
