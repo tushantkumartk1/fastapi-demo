@@ -7,3 +7,9 @@ redis
 pytest
 httpx
 pytest-mock
+
+sqlalchemy
+psycopg2-binary
+itsdangerous
+passlib
+python-multipart

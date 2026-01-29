@@ -3,6 +3,26 @@
 
 <h1>News Hub</h1>
 
+{% if not logged_in %}
+
+<h2>Login</h2>
+<form action="/login" method="post">
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <button type="submit">Login</button>
+</form>
+
+<hr>
+
+<h2>Register</h2>
+<form action="/register" method="post">
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <button type="submit">Register</button>
+</form>
+
+{% else %}
+
 <h2>Normal Search</h2>
 <form action="/results/search" method="get">
     <input name="q" placeholder="Search keyword" required>
@@ -22,5 +42,11 @@
     <input name="location" placeholder="Location" required>
     <button type="submit">Search</button>
 </form>
+
+<form action="/logout" method="post" style="margin-top: 20px;">
+    <button type="submit">Logout</button>
+</form>
+
+{% endif %}
 
 {% endblock %}
